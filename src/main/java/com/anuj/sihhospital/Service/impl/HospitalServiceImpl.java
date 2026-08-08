@@ -1,0 +1,134 @@
+package com.anuj.sihhospital.Service.impl;
+
+import com.anuj.sihhospital.Dto.*;
+import com.anuj.sihhospital.Entity.*;
+import com.anuj.sihhospital.Entity.Enum.AppointmentStatus;
+import com.anuj.sihhospital.Repository.*;
+import com.anuj.sihhospital.Service.HospitalService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class HospitalServiceImpl implements HospitalService {
+    @Autowired
+    private HospitalRepo hospitalRepository;
+    @Autowired
+    private DepartmentRepo departmentRepository;
+    @Autowired
+    private DoctorRepo doctorRepository;
+    @Autowired
+    private PatientRepo patientRepository;
+    @Autowired
+    private ReceptionistRepo receptionistRepository;
+    @Autowired
+    private AppointmentRepo appointmentRepository;
+    @Autowired
+    private MedicalRecordRepo medicalRecordRepository;
+
+    // --- Hospital ---
+    public Hospital createHospital(HospitalDTO dto) {
+        Hospital h = new Hospital();
+        h.setName(dto.name);
+        h.setType(dto.type);
+        h.setAddress(dto.address);
+        return hospitalRepository.save(h);
+    }
+    public List<Hospital> getAllHospitals() { return hospitalRepository.findAll(); }
+
+    // --- Department ---
+    public Department createDepartment(DepartmentDTO dto) {
+        Hospital hospital = hospitalRepository.findById(dto.hospitalId)
+                .orElseThrow(() -> new RuntimeException("Hospital not found"));
+        Department d = new Department();
+        d.setName(dto.name);
+        d.setHospital(hospital);
+        return departmentRepository.save(d);
+    }
+
+    // --- Doctor ---
+    public Doctor createDoctor(DoctorDTO dto) {
+        Hospital hospital = hospitalRepository.findById(dto.hospitalId)
+                .orElseThrow(() -> new RuntimeException("Hospital not found"));
+        Department dept = departmentRepository.findById(dto.departmentId)
+                .orElseThrow(() -> new RuntimeException("Department not found"));
+        Doctor doc = new Doctor();
+        doc.setName(dto.name);
+        doc.setSpecialization(dto.specialization);
+        doc.setFee(dto.fee);
+        doc.setHospital(hospital);
+        doc.setDepartment(dept);
+        return doctorRepository.save(doc);
+    }
+    public List<Doctor> getDoctorsByHospital(Long hospitalId) {
+        return doctorRepository.findByHospitalId(hospitalId);
+    }
+
+    // --- Patient ---
+    public Patient registerPatient(PatientDTO dto) {
+        Patient p = new Patient();
+        p.setName(dto.name);
+        p.setAge(dto.age);
+        p.setGender(dto.gender);
+        p.setPhone(dto.phone);
+        p.setBloodGroup(dto.bloodGroup);
+        return patientRepository.save(p);
+    }
+
+    // --- Receptionist ---
+    public  Receptionist createReceptionist(ReceptionistDTO dto) {
+        Hospital hospital = hospitalRepository.findById(dto.hospitalId)
+                .orElseThrow(() -> new RuntimeException("Hospital not found"));
+        Receptionist r = new Receptionist();
+        r.setName(dto.name);
+        r.setShift(dto.shift);
+        r.setHospital(hospital);
+        return receptionistRepository.save(r);
+    }
+
+    // --- Appointment ---
+    public Appointment bookAppointment(AppointmentDTO dto) {
+        Patient patient = patientRepository.findById(dto.patientId)
+                .orElseThrow(() -> new RuntimeException("Patient not found"));
+        Doctor doctor = doctorRepository.findById(dto.doctorId)
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+        Hospital hospital = hospitalRepository.findById(dto.hospitalId)
+                .orElseThrow(() -> new RuntimeException("Hospital not found"));
+
+        Appointment app = new Appointment();
+        app.setPatient(patient);
+        app.setDoctor(doctor);
+        app.setHospital(hospital);
+        app.setAppointmentDate(dto.appointmentDate);
+        app.setStatus(AppointmentStatus.SCHEDULED);
+
+        if (dto.receptionistId != null) {
+            Receptionist receptionist = receptionistRepository.findById(dto.receptionistId).orElse(null);
+            app.setReceptionist(receptionist);
+        }
+
+        return appointmentRepository.save(app);
+    }
+
+    // --- Medical Record ---
+    public MedicalRecord createMedicalRecord(MedicalRecordDTO dto) {
+        Appointment appointment = appointmentRepository.findById(dto.appointmentId)
+                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+        appointment.setStatus(AppointmentStatus.COMPLETED);
+        appointmentRepository.save(appointment);
+
+        MedicalRecord record = new MedicalRecord();
+        record.setAppointment(appointment);
+        record.setDiagnosis(dto.diagnosis);
+        record.setPrescription(dto.prescription);
+        record.setTotalBill(dto.totalBill);
+        record.setPaymentStatus(dto.paymentStatus);
+
+        return medicalRecordRepository.save(record);
+    }
+}
+
