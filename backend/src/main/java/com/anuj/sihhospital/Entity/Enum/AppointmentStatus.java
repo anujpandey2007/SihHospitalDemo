@@ -1,5 +1,5 @@
 package com.anuj.sihhospital.Entity.Enum;
 
 public enum AppointmentStatus {
-        SCHEDULED, COMPLETED, CANCELLED
+        SCHEDULED, COMPLETED, CANCELLED,CONFIRMED
     }

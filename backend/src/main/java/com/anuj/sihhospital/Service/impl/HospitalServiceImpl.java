@@ -53,7 +53,7 @@ public class HospitalServiceImpl implements HospitalService {
     public Doctor createDoctor(DoctorDTO dto) {
         Hospital hospital = hospitalRepository.findById(dto.hospitalId)
                 .orElseThrow(() -> new RuntimeException("Hospital not found"));
-        Department dept = departmentRepository.findById(dto.departmentId)
+        Department dept = departmentRepository.findById(dto.deptId)
                 .orElseThrow(() -> new RuntimeException("Department not found"));
         Doctor doc = new Doctor();
         doc.setName(dto.name);

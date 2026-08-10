@@ -1,7 +1,10 @@
 package com.anuj.sihhospital.Dto;
 
-public class DepartmentDTO {
+import lombok.Data;
 
+@Data
+public class DepartmentDTO {
+    public Long id;
     public String name;
     public Long hospitalId;
 

@@ -1,2 +1,0 @@
-# SihHospitalDemo
-practice practice practice
