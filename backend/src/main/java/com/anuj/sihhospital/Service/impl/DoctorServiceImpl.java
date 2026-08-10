@@ -28,8 +28,15 @@ public class DoctorServiceImpl implements DoctorService {
     // CREATE
     public DoctorDTO createDoctor(DoctorDTO dto) {
         Doctor doctor = convertToEntity(dto);
-        Doctor savedDoctor = doctorRepository.save(doctor);
-        return convertToDTO(savedDoctor);
+        try{
+            Doctor savedDoctor = doctorRepository.save(doctor);
+            return convertToDTO(savedDoctor);
+
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            throw e;
+        }
+
     }
 
     // READ ALL

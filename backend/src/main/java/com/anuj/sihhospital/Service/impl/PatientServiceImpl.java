@@ -24,9 +24,17 @@ public class PatientServiceImpl implements PatientService {
     // CREATE
     public PatientDTO createPatient(PatientDTO dto) {
         Patient patient = convertToEntity(dto);
-        Patient savedPatient = patientRepository.save(patient);
+        try{
+            Patient savedPatient = patientRepository.save(patient);
+            return convertToDTO(savedPatient);
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+            throw e ;
+        }
 
-        return convertToDTO(savedPatient);
+
+
     }
 
     // READ ALL
