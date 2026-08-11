@@ -8,6 +8,7 @@ import com.anuj.sihhospital.Repository.DepartmentRepo;
 import com.anuj.sihhospital.Repository.DoctorRepo;
 import com.anuj.sihhospital.Repository.HospitalRepo;
 import com.anuj.sihhospital.Service.DoctorService;
+import com.anuj.sihhospital.Exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,15 +29,8 @@ public class DoctorServiceImpl implements DoctorService {
     // CREATE
     public DoctorDTO createDoctor(DoctorDTO dto) {
         Doctor doctor = convertToEntity(dto);
-        try{
-            Doctor savedDoctor = doctorRepository.save(doctor);
-            return convertToDTO(savedDoctor);
-
-        }catch (Exception e){
-            System.out.println(e.getMessage());
-            throw e;
-        }
-
+        Doctor savedDoctor = doctorRepository.save(doctor);
+        return convertToDTO(savedDoctor);
     }
 
     // READ ALL
@@ -50,7 +44,7 @@ public class DoctorServiceImpl implements DoctorService {
     // READ BY ID
     public DoctorDTO getDoctorById(Long id) {
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Doctor not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor", "id", id));
         return convertToDTO(doctor);
     }
 
@@ -65,13 +59,13 @@ public class DoctorServiceImpl implements DoctorService {
     // UPDATE
     public DoctorDTO updateDoctor(Long id, DoctorDTO dto) {
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Doctor not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor", "id", id));
 
         Hospital hospital = hospitalRepository.findById(dto.getHospitalId())
-                .orElseThrow(() -> new RuntimeException("Hospital not found with ID: " + dto.getHospitalId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Hospital", "id", dto.getHospitalId()));
 
         Department department = departmentRepository.findById(dto.getDeptId())
-                .orElseThrow(() -> new RuntimeException("Department not found with ID: " + dto.getDeptId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Department", "id", dto.getDeptId()));
 
         doctor.setName(dto.getName());
         doctor.setSpecialization(dto.getSpecialization());
@@ -86,7 +80,7 @@ public class DoctorServiceImpl implements DoctorService {
     // DELETE
     public void deleteDoctor(Long id) {
         if (!doctorRepository.existsById(id)) {
-            throw new RuntimeException("Doctor not found with ID: " + id);
+            throw new ResourceNotFoundException("Doctor", "id", id);
         }
         doctorRepository.deleteById(id);
     }
@@ -115,10 +109,10 @@ public class DoctorServiceImpl implements DoctorService {
         doctor.setFee(dto.getFee());
 
         Hospital hospital = hospitalRepository.findById(dto.getHospitalId())
-                .orElseThrow(() -> new RuntimeException("Hospital not found with ID: " + dto.getHospitalId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Hospital", "id", dto.getHospitalId()));
 
         Department department = departmentRepository.findById(dto.getDeptId())
-                .orElseThrow(() -> new RuntimeException("Department not found with ID: " + dto.getDeptId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Department", "id", dto.getDeptId()));
 
         doctor.setHospital(hospital);
         doctor.setDepartment(department);

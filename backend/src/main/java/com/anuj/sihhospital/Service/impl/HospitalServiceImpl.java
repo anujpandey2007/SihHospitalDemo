@@ -5,6 +5,7 @@ import com.anuj.sihhospital.Entity.*;
 import com.anuj.sihhospital.Entity.Enum.AppointmentStatus;
 import com.anuj.sihhospital.Repository.*;
 import com.anuj.sihhospital.Service.HospitalService;
+import com.anuj.sihhospital.Exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,7 @@ public class HospitalServiceImpl implements HospitalService {
     // --- Department ---
     public Department createDepartment(DepartmentDTO dto) {
         Hospital hospital = hospitalRepository.findById(dto.hospitalId)
-                .orElseThrow(() -> new RuntimeException("Hospital not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Hospital", "id", dto.hospitalId));
         Department d = new Department();
         d.setName(dto.name);
         d.setHospital(hospital);
@@ -52,9 +53,9 @@ public class HospitalServiceImpl implements HospitalService {
     // --- Doctor ---
     public Doctor createDoctor(DoctorDTO dto) {
         Hospital hospital = hospitalRepository.findById(dto.hospitalId)
-                .orElseThrow(() -> new RuntimeException("Hospital not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Hospital", "id", dto.hospitalId));
         Department dept = departmentRepository.findById(dto.deptId)
-                .orElseThrow(() -> new RuntimeException("Department not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Department", "id", dto.deptId));
         Doctor doc = new Doctor();
         doc.setName(dto.name);
         doc.setSpecialization(dto.specialization);
@@ -81,7 +82,7 @@ public class HospitalServiceImpl implements HospitalService {
     // --- Receptionist ---
     public  Receptionist createReceptionist(ReceptionistDTO dto) {
         Hospital hospital = hospitalRepository.findById(dto.hospitalId)
-                .orElseThrow(() -> new RuntimeException("Hospital not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Hospital", "id", dto.hospitalId));
         Receptionist r = new Receptionist();
         r.setName(dto.name);
         r.setShift(dto.shift);
@@ -92,11 +93,11 @@ public class HospitalServiceImpl implements HospitalService {
     // --- Appointment ---
     public Appointment bookAppointment(AppointmentDTO dto) {
         Patient patient = patientRepository.findById(dto.patientId)
-                .orElseThrow(() -> new RuntimeException("Patient not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Patient", "id", dto.patientId));
         Doctor doctor = doctorRepository.findById(dto.doctorId)
-                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor", "id", dto.doctorId));
         Hospital hospital = hospitalRepository.findById(dto.hospitalId)
-                .orElseThrow(() -> new RuntimeException("Hospital not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Hospital", "id", dto.hospitalId));
 
         Appointment app = new Appointment();
         app.setPatient(patient);
@@ -116,7 +117,7 @@ public class HospitalServiceImpl implements HospitalService {
     // --- Medical Record ---
     public MedicalRecord createMedicalRecord(MedicalRecordDTO dto) {
         Appointment appointment = appointmentRepository.findById(dto.appointmentId)
-                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", dto.appointmentId));
 
         appointment.setStatus(AppointmentStatus.COMPLETED);
         appointmentRepository.save(appointment);

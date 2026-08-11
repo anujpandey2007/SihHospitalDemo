@@ -7,6 +7,7 @@ import com.anuj.sihhospital.Entity.MedicalRecord;
 import com.anuj.sihhospital.Repository.AppointmentRepo;
 import com.anuj.sihhospital.Repository.MedicalRecordRepo;
 import com.anuj.sihhospital.Service.MedicalRecordService;
+import com.anuj.sihhospital.Exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,21 +45,21 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     // READ BY ID
     public MedicalRecordDTO getMedicalRecordById(Long id) {
         MedicalRecord record = medicalRecordRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Medical record not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("MedicalRecord", "id", id));
         return convertToDTO(record);
     }
 
     // READ BY APPOINTMENT ID
     public MedicalRecordDTO getMedicalRecordByAppointmentId(Long appointmentId) {
         MedicalRecord record = medicalRecordRepository.findByAppointmentId(appointmentId)
-                .orElseThrow(() -> new RuntimeException("Medical record not found for Appointment ID: " + appointmentId));
+                .orElseThrow(() -> new ResourceNotFoundException("MedicalRecord", "appointmentId", appointmentId));
         return convertToDTO(record);
     }
 
     // UPDATE RECORD
     public MedicalRecordDTO updateMedicalRecord(Long id, MedicalRecordDTO dto) {
         MedicalRecord record = medicalRecordRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Medical record not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("MedicalRecord", "id", id));
 
         record.setDiagnosis(dto.getDiagnosis());
         record.setPrescription(dto.getPrescription());
@@ -72,7 +73,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     // UPDATE PAYMENT STATUS ONLY (e.g. Patient pays bill)
     public MedicalRecordDTO updatePaymentStatus(Long id, PaymentStatus status) {
         MedicalRecord record = medicalRecordRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Medical record not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("MedicalRecord", "id", id));
 
         record.setPaymentStatus(status);
         MedicalRecord updatedRecord = medicalRecordRepository.save(record);
@@ -82,7 +83,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     // DELETE
     public void deleteMedicalRecord(Long id) {
         if (!medicalRecordRepository.existsById(id)) {
-            throw new RuntimeException("Medical record not found with ID: " + id);
+            throw new ResourceNotFoundException("MedicalRecord", "id", id);
         }
         medicalRecordRepository.deleteById(id);
     }
@@ -110,7 +111,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         record.setPaymentStatus(dto.getPaymentStatus());
 
         Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
-                .orElseThrow(() -> new RuntimeException("Appointment not found with ID: " + dto.getAppointmentId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", dto.getAppointmentId()));
 
         record.setAppointment(appointment);
         return record;

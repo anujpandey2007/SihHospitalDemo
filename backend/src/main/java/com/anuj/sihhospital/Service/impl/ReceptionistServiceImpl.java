@@ -6,6 +6,7 @@ import com.anuj.sihhospital.Entity.Receptionist;
 import com.anuj.sihhospital.Repository.HospitalRepo;
 import com.anuj.sihhospital.Repository.ReceptionistRepo;
 import com.anuj.sihhospital.Service.ReceptionistService;
+import com.anuj.sihhospital.Exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +40,7 @@ public class ReceptionistServiceImpl implements ReceptionistService {
     // READ BY ID
     public ReceptionistDTO getReceptionistById(Long id) {
         Receptionist receptionist = receptionistRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Receptionist not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Receptionist", "id", id));
         return convertToDTO(receptionist);
     }
 
@@ -54,10 +55,10 @@ public class ReceptionistServiceImpl implements ReceptionistService {
     // UPDATE
     public ReceptionistDTO updateReceptionist(Long id, ReceptionistDTO dto) {
         Receptionist receptionist = receptionistRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Receptionist not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Receptionist", "id", id));
 
         Hospital hospital = hospitalRepository.findById(dto.getHospitalId())
-                .orElseThrow(() -> new RuntimeException("Hospital not found with ID: " + dto.getHospitalId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Hospital", "id", dto.getHospitalId()));
 
         receptionist.setName(dto.getName());
         receptionist.setShift(dto.getShift());
@@ -70,7 +71,7 @@ public class ReceptionistServiceImpl implements ReceptionistService {
     // DELETE
     public void deleteReceptionist(Long id) {
         if (!receptionistRepository.existsById(id)) {
-            throw new RuntimeException("Receptionist not found with ID: " + id);
+            throw new ResourceNotFoundException("Receptionist", "id", id);
         }
         receptionistRepository.deleteById(id);
     }
@@ -94,7 +95,7 @@ public class ReceptionistServiceImpl implements ReceptionistService {
         receptionist.setShift(dto.getShift());
 
         Hospital hospital = hospitalRepository.findById(dto.getHospitalId())
-                .orElseThrow(() -> new RuntimeException("Hospital not found with ID: " + dto.getHospitalId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Hospital", "id", dto.getHospitalId()));
 
         receptionist.setHospital(hospital);
         return receptionist;

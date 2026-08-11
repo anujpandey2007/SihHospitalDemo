@@ -4,6 +4,7 @@ import com.anuj.sihhospital.Dto.PatientDTO;
 import com.anuj.sihhospital.Entity.Patient;
 import com.anuj.sihhospital.Repository.PatientRepo;
 import com.anuj.sihhospital.Service.PatientService;
+import com.anuj.sihhospital.Exception.ResourceNotFoundException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -24,17 +25,8 @@ public class PatientServiceImpl implements PatientService {
     // CREATE
     public PatientDTO createPatient(PatientDTO dto) {
         Patient patient = convertToEntity(dto);
-        try{
-            Patient savedPatient = patientRepository.save(patient);
-            return convertToDTO(savedPatient);
-        }
-        catch (Exception e){
-            System.out.println(e.getMessage());
-            throw e ;
-        }
-
-
-
+        Patient savedPatient = patientRepository.save(patient);
+        return convertToDTO(savedPatient);
     }
 
     // READ ALL
@@ -48,14 +40,14 @@ public class PatientServiceImpl implements PatientService {
     // READ BY ID
     public PatientDTO getPatientById(Long id) {
         Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Patient not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Patient", "id", id));
         return convertToDTO(patient);
     }
 
     // UPDATE
     public PatientDTO updatePatient(Long id, PatientDTO dto) {
         Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Patient not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Patient", "id", id));
 
         patient.setName(dto.getName());
         patient.setAge(dto.getAge());
@@ -70,7 +62,7 @@ public class PatientServiceImpl implements PatientService {
     // DELETE
     public void deletePatient(Long id) {
         if (!patientRepository.existsById(id)) {
-            throw new RuntimeException("Patient not found with ID: " + id);
+            throw new ResourceNotFoundException("Patient", "id", id);
         }
         patientRepository.deleteById(id);
     }

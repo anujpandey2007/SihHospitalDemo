@@ -5,6 +5,7 @@ import com.anuj.sihhospital.Entity.*;
 import com.anuj.sihhospital.Entity.Enum.AppointmentStatus;
 import com.anuj.sihhospital.Repository.*;
 import com.anuj.sihhospital.Service.AppointmentService;
+import com.anuj.sihhospital.Exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     // READ BY ID
     public AppointmentDTO getAppointmentById(Long id) {
         Appointment appointment = appointmentRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Appointment not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id));
         return convertToDTO(appointment);
     }
 
@@ -66,7 +67,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     // UPDATE STATUS (e.g. COMPLETED or CANCELLED)
     public AppointmentDTO updateAppointmentStatus(Long id, AppointmentStatus status) {
         Appointment appointment = appointmentRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Appointment not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id));
 
         appointment.setStatus(status);
         Appointment updatedAppointment = appointmentRepo.save(appointment);
@@ -76,14 +77,14 @@ public class AppointmentServiceImpl implements AppointmentService {
     // FULL UPDATE
     public AppointmentDTO updateAppointment(Long id, AppointmentDTO dto) {
         Appointment appointment = appointmentRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Appointment not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id));
 
         Patient patient = patientRepository.findById(dto.getPatientId())
-                .orElseThrow(() -> new RuntimeException("Patient not found with ID: " + dto.getPatientId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Patient", "id", dto.getPatientId()));
         Doctor doctor = doctorRepository.findById(dto.getDoctorId())
-                .orElseThrow(() -> new RuntimeException("Doctor not found with ID: " + dto.getDoctorId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor", "id", dto.getDoctorId()));
         Hospital hospital = hospitalRepository.findById(dto.getHospitalId())
-                .orElseThrow(() -> new RuntimeException("Hospital not found with ID: " + dto.getHospitalId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Hospital", "id", dto.getHospitalId()));
 
         appointment.setAppointmentDate(dto.getAppointmentDate());
         appointment.setStatus(dto.getStatus());
@@ -93,7 +94,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         if (dto.getReceptionistId() != null) {
             Receptionist receptionist = receptionistRepository.findById(dto.getReceptionistId())
-                    .orElseThrow(() -> new RuntimeException("Receptionist not found with ID: " + dto.getReceptionistId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Receptionist", "id", dto.getReceptionistId()));
             appointment.setReceptionist(receptionist);
         }
 
@@ -104,7 +105,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     // DELETE (Cancel/Remove record)
     public void deleteAppointment(Long id) {
         if (!appointmentRepo.existsById(id)) {
-            throw new RuntimeException("Appointment not found with ID: " + id);
+            throw new ResourceNotFoundException("Appointment", "id", id);
         }
         appointmentRepo.deleteById(id);
     }
@@ -138,11 +139,11 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(dto.getStatus());
 
         Patient patient = patientRepository.findById(dto.getPatientId())
-                .orElseThrow(() -> new RuntimeException("Patient not found with ID: " + dto.getPatientId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Patient", "id", dto.getPatientId()));
         Doctor doctor = doctorRepository.findById(dto.getDoctorId())
-                .orElseThrow(() -> new RuntimeException("Doctor not found with ID: " + dto.getDoctorId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor", "id", dto.getDoctorId()));
         Hospital hospital = hospitalRepository.findById(dto.getHospitalId())
-                .orElseThrow(() -> new RuntimeException("Hospital not found with ID: " + dto.getHospitalId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Hospital", "id", dto.getHospitalId()));
 
         appointment.setPatient(patient);
         appointment.setDoctor(doctor);
@@ -150,7 +151,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         if (dto.getReceptionistId() != null) {
             Receptionist receptionist = receptionistRepository.findById(dto.getReceptionistId())
-                    .orElseThrow(() -> new RuntimeException("Receptionist not found with ID: " + dto.getReceptionistId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Receptionist", "id", dto.getReceptionistId()));
             appointment.setReceptionist(receptionist);
         }
 

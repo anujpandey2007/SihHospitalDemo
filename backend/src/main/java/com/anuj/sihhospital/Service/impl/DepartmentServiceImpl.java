@@ -6,6 +6,7 @@ import com.anuj.sihhospital.Entity.Hospital;
 import com.anuj.sihhospital.Repository.DepartmentRepo;
 import com.anuj.sihhospital.Repository.HospitalRepo;
 import com.anuj.sihhospital.Service.DepartmentService;
+import com.anuj.sihhospital.Exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +40,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     // READ BY ID
     public DepartmentDTO getDepartmentById(Long id) {
         Department department = departmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Department not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Department", "id", id));
         return convertToDTO(department);
     }
 
@@ -54,10 +55,10 @@ public class DepartmentServiceImpl implements DepartmentService {
     // UPDATE
     public DepartmentDTO updateDepartment(Long id, DepartmentDTO dto) {
         Department department = departmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Department not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Department", "id", id));
 
         Hospital hospital = hospitalRepository.findById(dto.getHospitalId())
-                .orElseThrow(() -> new RuntimeException("Hospital not found with ID: " + dto.getHospitalId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Hospital", "id", dto.getHospitalId()));
 
         department.setName(dto.getName());
         department.setHospital(hospital);
@@ -69,7 +70,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     // DELETE
     public void deleteDepartment(Long id) {
         if (!departmentRepository.existsById(id)) {
-            throw new RuntimeException("Department not found with ID: " + id);
+            throw new ResourceNotFoundException("Department", "id", id);
         }
         departmentRepository.deleteById(id);
     }
@@ -91,7 +92,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         department.setName(dto.getName());
 
         Hospital hospital = hospitalRepository.findById(dto.getHospitalId())
-                .orElseThrow(() -> new RuntimeException("Hospital not found with ID: " + dto.getHospitalId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Hospital", "id", dto.getHospitalId()));
 
         department.setHospital(hospital);
         return department;
