@@ -6,6 +6,8 @@ import com.anuj.sihhospital.Entity.Enum.AppointmentStatus;
 import com.anuj.sihhospital.Repository.*;
 import com.anuj.sihhospital.Service.AppointmentService;
 import com.anuj.sihhospital.Exception.ResourceNotFoundException;
+import com.anuj.sihhospital.Exception.BadRequestException;
+import com.anuj.sihhospital.Exception.OperationNotAllowedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,10 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     // CREATE (Book Appointment)
     public AppointmentDTO createAppointment(AppointmentDTO dto) {
+        if (dto.getAppointmentDate() == null) {
+            throw new BadRequestException("Appointment date cannot be null");
+        }
+
         Appointment appointment = convertToEntity(dto);
         if (appointment.getStatus() == null) {
             appointment.setStatus(AppointmentStatus.SCHEDULED);
@@ -68,6 +74,10 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentDTO updateAppointmentStatus(Long id, AppointmentStatus status) {
         Appointment appointment = appointmentRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment", "id", id));
+
+        if (appointment.getStatus() == AppointmentStatus.CANCELLED || appointment.getStatus() == AppointmentStatus.COMPLETED) {
+            throw new OperationNotAllowedException("Cannot change status of an appointment that is already " + appointment.getStatus());
+        }
 
         appointment.setStatus(status);
         Appointment updatedAppointment = appointmentRepo.save(appointment);

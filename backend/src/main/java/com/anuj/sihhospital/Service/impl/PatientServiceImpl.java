@@ -5,6 +5,8 @@ import com.anuj.sihhospital.Entity.Patient;
 import com.anuj.sihhospital.Repository.PatientRepo;
 import com.anuj.sihhospital.Service.PatientService;
 import com.anuj.sihhospital.Exception.ResourceNotFoundException;
+import com.anuj.sihhospital.Exception.ResourceAlreadyExistsException;
+import com.anuj.sihhospital.Exception.BadRequestException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -24,6 +26,13 @@ public class PatientServiceImpl implements PatientService {
 
     // CREATE
     public PatientDTO createPatient(PatientDTO dto) {
+        if (dto.getName() == null || dto.getName().trim().isEmpty()) {
+            throw new BadRequestException("Patient name cannot be empty");
+        }
+        if (dto.getPhone() != null && patientRepository.existsByPhone(dto.getPhone())) {
+            throw new ResourceAlreadyExistsException("Patient", "phone", dto.getPhone());
+        }
+
         Patient patient = convertToEntity(dto);
         Patient savedPatient = patientRepository.save(patient);
         return convertToDTO(savedPatient);
@@ -46,6 +55,10 @@ public class PatientServiceImpl implements PatientService {
 
     // UPDATE
     public PatientDTO updatePatient(Long id, PatientDTO dto) {
+        if (dto.getName() == null || dto.getName().trim().isEmpty()) {
+            throw new BadRequestException("Patient name cannot be empty");
+        }
+
         Patient patient = patientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Patient", "id", id));
 
