@@ -9,6 +9,7 @@ import com.anuj.sihhospital.Repository.DoctorRepo;
 import com.anuj.sihhospital.Repository.HospitalRepo;
 import com.anuj.sihhospital.Service.DoctorService;
 import com.anuj.sihhospital.Exception.ResourceNotFoundException;
+import com.anuj.sihhospital.Exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,8 @@ public class DoctorServiceImpl implements DoctorService {
 
     // CREATE
     public DoctorDTO createDoctor(DoctorDTO dto) {
+        validateDoctorData(dto);
+
         Doctor doctor = convertToEntity(dto);
         Doctor savedDoctor = doctorRepository.save(doctor);
         return convertToDTO(savedDoctor);
@@ -58,6 +61,8 @@ public class DoctorServiceImpl implements DoctorService {
 
     // UPDATE
     public DoctorDTO updateDoctor(Long id, DoctorDTO dto) {
+        validateDoctorData(dto);
+
         Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Doctor", "id", id));
 
@@ -86,6 +91,18 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     // Helper Mappers
+    private void validateDoctorData(DoctorDTO dto) {
+        if (dto.getName() == null || dto.getName().trim().isEmpty()) {
+            throw new BadRequestException("Doctor name cannot be empty");
+        }
+        if (dto.getSpecialization() == null || dto.getSpecialization().trim().isEmpty()) {
+            throw new BadRequestException("Doctor specialization cannot be empty");
+        }
+        if (dto.getFee() != null && dto.getFee() < 0) {
+            throw new BadRequestException("Consultation fee cannot be negative");
+        }
+    }
+
     private DoctorDTO convertToDTO(Doctor doctor) {
         DoctorDTO dto = new DoctorDTO();
         dto.setId(doctor.getId());

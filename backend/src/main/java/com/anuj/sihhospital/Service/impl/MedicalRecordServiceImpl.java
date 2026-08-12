@@ -8,6 +8,8 @@ import com.anuj.sihhospital.Repository.AppointmentRepo;
 import com.anuj.sihhospital.Repository.MedicalRecordRepo;
 import com.anuj.sihhospital.Service.MedicalRecordService;
 import com.anuj.sihhospital.Exception.ResourceNotFoundException;
+import com.anuj.sihhospital.Exception.ResourceAlreadyExistsException;
+import com.anuj.sihhospital.Exception.OperationNotAllowedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,10 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 
     // CREATE
     public MedicalRecordDTO createMedicalRecord(MedicalRecordDTO dto) {
+        if (dto.getAppointmentId() != null && medicalRecordRepository.existsByAppointmentId(dto.getAppointmentId())) {
+            throw new ResourceAlreadyExistsException("MedicalRecord", "appointmentId", dto.getAppointmentId());
+        }
+
         MedicalRecord medicalRecord = convertToEntity(dto);
         if (medicalRecord.getPaymentStatus() == null) {
             medicalRecord.setPaymentStatus(PaymentStatus.UNPAID);
@@ -61,6 +67,10 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         MedicalRecord record = medicalRecordRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("MedicalRecord", "id", id));
 
+        if (record.getPaymentStatus() == PaymentStatus.PAID) {
+            throw new OperationNotAllowedException("Cannot modify a medical record after payment is complete (record is sealed).");
+        }
+
         record.setDiagnosis(dto.getDiagnosis());
         record.setPrescription(dto.getPrescription());
         record.setTotalBill(dto.getTotalBill());
@@ -74,6 +84,10 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     public MedicalRecordDTO updatePaymentStatus(Long id, PaymentStatus status) {
         MedicalRecord record = medicalRecordRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("MedicalRecord", "id", id));
+
+        if (record.getPaymentStatus() == PaymentStatus.PAID) {
+            throw new OperationNotAllowedException("Payment is already processed for this medical record.");
+        }
 
         record.setPaymentStatus(status);
         MedicalRecord updatedRecord = medicalRecordRepository.save(record);

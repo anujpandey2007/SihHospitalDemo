@@ -7,6 +7,7 @@ import com.anuj.sihhospital.Repository.DepartmentRepo;
 import com.anuj.sihhospital.Repository.HospitalRepo;
 import com.anuj.sihhospital.Service.DepartmentService;
 import com.anuj.sihhospital.Exception.ResourceNotFoundException;
+import com.anuj.sihhospital.Exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,8 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     // CREATE
     public DepartmentDTO createDepartment(DepartmentDTO dto) {
+        validateDepartmentData(dto);
+
         Department department = convertToEntity(dto);
         Department savedDepartment = departmentRepository.save(department);
         return convertToDTO(savedDepartment);
@@ -54,6 +57,8 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     // UPDATE
     public DepartmentDTO updateDepartment(Long id, DepartmentDTO dto) {
+        validateDepartmentData(dto);
+
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Department", "id", id));
 
@@ -76,6 +81,12 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     // Helper Mappers
+    private void validateDepartmentData(DepartmentDTO dto) {
+        if (dto.getName() == null || dto.getName().trim().isEmpty()) {
+            throw new BadRequestException("Department name cannot be empty");
+        }
+    }
+
     private DepartmentDTO convertToDTO(Department department) {
         DepartmentDTO dto = new DepartmentDTO();
         dto.setId(department.getId());

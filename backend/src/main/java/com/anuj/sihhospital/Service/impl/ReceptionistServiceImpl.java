@@ -7,6 +7,7 @@ import com.anuj.sihhospital.Repository.HospitalRepo;
 import com.anuj.sihhospital.Repository.ReceptionistRepo;
 import com.anuj.sihhospital.Service.ReceptionistService;
 import com.anuj.sihhospital.Exception.ResourceNotFoundException;
+import com.anuj.sihhospital.Exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,8 @@ public class ReceptionistServiceImpl implements ReceptionistService {
 
     // CREATE
     public ReceptionistDTO createReceptionist(ReceptionistDTO dto) {
+        validateReceptionistData(dto);
+
         Receptionist receptionist = convertToEntity(dto);
         Receptionist savedReceptionist = receptionistRepository.save(receptionist);
         return convertToDTO(savedReceptionist);
@@ -54,6 +57,8 @@ public class ReceptionistServiceImpl implements ReceptionistService {
 
     // UPDATE
     public ReceptionistDTO updateReceptionist(Long id, ReceptionistDTO dto) {
+        validateReceptionistData(dto);
+
         Receptionist receptionist = receptionistRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Receptionist", "id", id));
 
@@ -77,6 +82,12 @@ public class ReceptionistServiceImpl implements ReceptionistService {
     }
 
     // Helper Mappers
+    private void validateReceptionistData(ReceptionistDTO dto) {
+        if (dto.getName() == null || dto.getName().trim().isEmpty()) {
+            throw new BadRequestException("Receptionist name cannot be empty");
+        }
+    }
+
     private ReceptionistDTO convertToDTO(Receptionist receptionist) {
         ReceptionistDTO dto = new ReceptionistDTO();
         dto.setId(receptionist.getId());

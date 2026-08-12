@@ -6,6 +6,8 @@ import com.anuj.sihhospital.Entity.Enum.AppointmentStatus;
 import com.anuj.sihhospital.Repository.*;
 import com.anuj.sihhospital.Service.HospitalService;
 import com.anuj.sihhospital.Exception.ResourceNotFoundException;
+import com.anuj.sihhospital.Exception.BadRequestException;
+import com.anuj.sihhospital.Exception.ResourceAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,16 @@ public class HospitalServiceImpl implements HospitalService {
 
     // --- Hospital ---
     public Hospital createHospital(HospitalDTO dto) {
+        if (dto.name == null || dto.name.trim().isEmpty()) {
+            throw new BadRequestException("Hospital name cannot be empty");
+        }
+        if (dto.address == null || dto.address.trim().isEmpty()) {
+            throw new BadRequestException("Hospital address cannot be empty");
+        }
+        if (hospitalRepository.existsByName(dto.name)) {
+            throw new ResourceAlreadyExistsException("Hospital", "name", dto.name);
+        }
+
         Hospital h = new Hospital();
         h.setName(dto.name);
         h.setType(dto.type);

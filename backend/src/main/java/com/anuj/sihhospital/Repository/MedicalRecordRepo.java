@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface MedicalRecordRepo extends JpaRepository<MedicalRecord,Long> {
     Optional<MedicalRecord> findByAppointmentId(Long appointmentId);
+    boolean existsByAppointmentId(Long appointmentId);
 }
