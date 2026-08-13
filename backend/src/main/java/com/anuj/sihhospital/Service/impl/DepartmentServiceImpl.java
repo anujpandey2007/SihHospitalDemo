@@ -101,6 +101,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     private Department convertToEntity(DepartmentDTO dto) {
         Department department = new Department();
         department.setName(dto.getName());
+        department.setId(dto.getId());
 
         Hospital hospital = hospitalRepository.findById(dto.getHospitalId())
                 .orElseThrow(() -> new ResourceNotFoundException("Hospital", "id", dto.getHospitalId()));
