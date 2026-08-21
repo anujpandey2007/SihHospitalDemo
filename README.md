@@ -8,7 +8,6 @@ A full-stack **Hospital Management System** built with a **Next.js (React.js)** 
 
 | Resource | Description | Access Link |
 |---|---|---|
-| **Live Frontend** | Deployed production React.js application | [Open Application](https://sih-hospital-demo.vercel.app) |
 | **API Collection** | Postman collection with backend REST APIs for testing | [Open Postman Collection](https://www.postman.com/springboot-2098/sihhospitaldemo/folder/52teqr9/new-folder) |
 | **Drive Link** | Drive folder link for information | [Open Drive folder](https://drive.google.com/drive/folders/18Il3JUkfUguMZlyOFug7bDgh_krOESxk?usp=sharing) |
 | **System Workflow** | Architecture and deployment workflow of the application | [View Workflow](#-system-workflow) |
