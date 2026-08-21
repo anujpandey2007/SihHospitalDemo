@@ -51,8 +51,20 @@ export const DoctorDashboard: React.FC = () => {
         setChiefComplaint(analysis.chiefComplaint);
         setSymptoms(analysis.symptoms.join(', '));
         setSuspectedImpression(analysis.suspectedImpression);
-        setPrescription('Tab. Paracetamol 650mg TDS\nTab. ORS Sachet BD');
-        setNotes('Advised light diet and fluids. Review after 48h.');
+        
+        if (analysis.recommendedTriage === 'PRIORITY_1_EMERGENCY') {
+          setPrescription('Tab. Aspirin 300mg stat\nTab. Clopidogrel 300mg stat\nSublingual Sorbitrate 5mg SOS\nContinuous O2 Inhalation (4L/min)');
+          setNotes('CRITICAL: Immediate 12-lead ECG and emergency cardiac referral initiated.');
+        } else if (analysis.chiefComplaint.toLowerCase().includes('abdominal') || analysis.chiefComplaint.toLowerCase().includes('pain') || analysis.chiefComplaint.toLowerCase().includes('gastro')) {
+          setPrescription('Tab. Paracetamol 650mg TDS\nTab. ORS Sachet in 1L water BD\nTab. Ondansetron 4mg SOS');
+          setNotes('Advised hydration, soft light diet. Review in OPD after 48 hours.');
+        } else if (analysis.chiefComplaint.toLowerCase().includes('fever') || analysis.chiefComplaint.toLowerCase().includes('pyrexia')) {
+          setPrescription('Tab. Paracetamol 650mg TDS\nCap. Multivitamin OD 10 days\nAdequate oral hydration');
+          setNotes('Monitor body temperature 4-hourly. CBC test advised if fever exceeds 72h.');
+        } else {
+          setPrescription('Tab. Paracetamol 650mg SOS\nTab. Pantoprazole 40mg OD (before breakfast)\nCap. B-Complex OD');
+          setNotes('Symptomatic medical management. Follow up in OPD as needed.');
+        }
       } finally {
         setIsSynthesizing(false);
       }
@@ -61,8 +73,8 @@ export const DoctorDashboard: React.FC = () => {
       setChiefComplaint(appt.reason);
       setSymptoms(appt.reason);
       setSuspectedImpression('Clinical evaluation pending');
-      setPrescription('');
-      setNotes('');
+      setPrescription('Tab. Paracetamol 650mg SOS\nMultivitamin supplement OD');
+      setNotes('Routine clinical observation.');
     }
   };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Patient } from '../types';
+import { Patient } from '../types'
 import { QrCode, ShieldCheck, Download, Share2, Baby, Sparkles } from 'lucide-react';
 
 interface AbhaCardProps {
